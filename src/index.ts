@@ -5,7 +5,7 @@ import { PrismaClient } from "./prisma";
 const app = new Hono();
 const prisma = new PrismaClient();
 
-//get student details
+//1:get student details
 app.get("/students", async (c) => {
   try {
     const students = await prisma.student.findMany();
@@ -15,7 +15,7 @@ app.get("/students", async (c) => {
   }
 });
 
-//get student details 
+//2:get student with proctor details 
 app.get("/students/enriched", async (c) => {
   try {
     const students = await prisma.student.findMany({
@@ -29,6 +29,8 @@ app.get("/students/enriched", async (c) => {
   }
 });
 
+
+//3:get professors details
 app.get("/professors", async (c) => {
   try {
     const professors = await prisma.professor.findMany();
@@ -38,10 +40,11 @@ app.get("/professors", async (c) => {
   }
 });
 
+//4:create student details
 app.post("/students", async (c) => {
   const { name, dateOfBirth, aadharNumber } = await c.req.json();
   try {
-    // Check if Aadhar number already exists
+    
     const existAadhar = await prisma.student.findUnique({
       where: { aadharNumber },
     });
@@ -49,7 +52,7 @@ app.post("/students", async (c) => {
       return c.json({ message: "Aadhar number already exists" }, 400);
     }
 
-    // Create student
+
     const student = await prisma.student.create({
       data:{
         name,
@@ -66,7 +69,7 @@ app.post("/students", async (c) => {
   }
 });
 
-
+//5: create professors details
 app.post("/professors", async (c) => {
   try {
     const { name, seniority, aadharNumber } = await c.req.json();
@@ -92,6 +95,8 @@ app.post("/professors", async (c) => {
   }
 });
 
+
+//6:get details of the professor by id
 app.get("/professors/:professorId/proctorships", async (c) => {
   try {
     const { professorId } = c.req.param();
@@ -110,7 +115,7 @@ app.get("/professors/:professorId/proctorships", async (c) => {
   }
 });
 
-//update details of students
+//7:update details of students
 app.patch("/students/:studentId",async (c) => {
   try {
     const { studentId } = c.req.param();
@@ -137,7 +142,7 @@ app.patch("/students/:studentId",async (c) => {
  }
 });
 
-//update professor by id
+//8:update professor by id
 app.patch("/professors/:professorId", async (c) => {
   try {
     const { professorId } = c.req.param();
@@ -162,7 +167,7 @@ app.patch("/professors/:professorId", async (c) => {
   }
 });
 
-//delete student by id
+//9:delete student by id
 app.delete("/students/:studentId", async (c) => {
   try {
     const { studentId } = c.req.param();
@@ -181,7 +186,7 @@ app.delete("/students/:studentId", async (c) => {
   }
 });
 
-//delete professor by id
+//10:delete professor by id
 app.delete("/professors/:professorId", async (c) => {
   try {
     const { professorId } = c.req.param();
@@ -200,7 +205,7 @@ app.delete("/professors/:professorId", async (c) => {
   }
 });
 
-//Assigns a student under the protorship of the professor referenced by professorId.
+//11:Assigns a student under the protorship of the professor referenced by professorId.
 app.post("/professors/:professorId/proctorships", async (c) => {
   const { professorId } = c.req.param();
   const { studentId } = await c.req.json();
@@ -239,7 +244,7 @@ app.post("/professors/:professorId/proctorships", async (c) => {
 });
 
 
-//Returns the library membership details of the specified student.
+//12:Returns the library membership details of the specified student.
 app.get("/students/:studentId/library-membership", async (c) => {
   try {
     const { studentId } = c.req.param();
@@ -265,7 +270,7 @@ app.get("/students/:studentId/library-membership", async (c) => {
 });
     
 
-//Creates a library membership for the specified student. Ensure no duplicate library memberships for a student.
+//13:Creates a library membership for the specified student. Ensure no duplicate library memberships for a student.
 app.post("/students/:studentId/library-membership", async (c) => {
   try {
     const { issueDate, expiryDate } = await c.req.json();
@@ -298,7 +303,7 @@ app.post("/students/:studentId/library-membership", async (c) => {
 });
 
   
-//Updates the library membership details of the specified student.
+//14:Updates the library membership details of the specified student.
 app.patch("/students/:studentId/library-membership", async (c) => {
   try {
     
@@ -332,7 +337,7 @@ app.patch("/students/:studentId/library-membership", async (c) => {
   }
 });
 
-//Deletes the library membership of the specified student.
+//15:Deletes the library membership of the specified student.
 app.delete("/students/:studentId/library-membership", async (c) => {
   try {
     const { studentId } = c.req.param();
