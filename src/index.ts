@@ -15,7 +15,7 @@ app.get("/students", async (c) => {
   }
 });
 
-//2:get student with proctor details 
+//2:get student with proctor details
 app.get("/students/enriched", async (c) => {
   try {
     const students = await prisma.student.findMany({
@@ -28,7 +28,6 @@ app.get("/students/enriched", async (c) => {
     return c.json({ message: "Bad request" }, 400);
   }
 });
-
 
 //3:get professors details
 app.get("/professors", async (c) => {
@@ -44,7 +43,6 @@ app.get("/professors", async (c) => {
 app.post("/students", async (c) => {
   const { name, dateOfBirth, aadharNumber } = await c.req.json();
   try {
-    
     const existAadhar = await prisma.student.findUnique({
       where: { aadharNumber },
     });
@@ -52,20 +50,18 @@ app.post("/students", async (c) => {
       return c.json({ message: "Aadhar number already exists" }, 400);
     }
 
-
     const student = await prisma.student.create({
-      data:{
+      data: {
         name,
         dateOfBirth,
-        aadharNumber
-        
+        aadharNumber,
       },
     });
 
     return c.json({ student }, 201);
   } catch (error) {
     console.error(error);
-    return c.json({ message: "Internal server error", error: error },500);
+    return c.json({ message: "Internal server error", error: error }, 500);
   }
 });
 
@@ -95,7 +91,6 @@ app.post("/professors", async (c) => {
   }
 });
 
-
 //6:get details of the professor by id
 app.get("/professors/:professorId/proctorships", async (c) => {
   try {
@@ -116,7 +111,7 @@ app.get("/professors/:professorId/proctorships", async (c) => {
 });
 
 //7:update details of students
-app.patch("/students/:studentId",async (c) => {
+app.patch("/students/:studentId", async (c) => {
   try {
     const { studentId } = c.req.param();
     const { name, dateOfBirth, aadharNumber, proctorId } = await c.req.json();
@@ -135,11 +130,10 @@ app.patch("/students/:studentId",async (c) => {
         proctorId,
       },
     });
-    return c.json({data: student}, 201);
-
+    return c.json({ data: student }, 201);
   } catch (e) {
     return c.json({ message: "INTERNAL SERVER ERROR" }, 500);
- }
+  }
 });
 
 //8:update professor by id
@@ -160,8 +154,8 @@ app.patch("/professors/:professorId", async (c) => {
         seniority,
         aadharNumber,
       },
-    })
-    return c.json({data: professor}, 201);
+    });
+    return c.json({ data: professor }, 201);
   } catch (e) {
     return c.json({ message: "INTERNAL SERVER ERROR" }, 500);
   }
@@ -243,7 +237,6 @@ app.post("/professors/:professorId/proctorships", async (c) => {
   }
 });
 
-
 //12:Returns the library membership details of the specified student.
 app.get("/students/:studentId/library-membership", async (c) => {
   try {
@@ -261,14 +254,11 @@ app.get("/students/:studentId/library-membership", async (c) => {
       return c.json({ error: "Student has no library membership" }, 404);
     }
     return c.json(libraryMembership, 200);
-
   } catch (error) {
     console.error(error);
     return c.json({ error: "Internal Server Error" }, 500);
   }
-  
 });
-    
 
 //13:Creates a library membership for the specified student. Ensure no duplicate library memberships for a student.
 app.post("/students/:studentId/library-membership", async (c) => {
@@ -289,24 +279,21 @@ app.post("/students/:studentId/library-membership", async (c) => {
     }
     const newLibraryMembership = await prisma.libraryMembership.create({
       data: {
-        studentId:studentId,
+        studentId: studentId,
         issueDate,
-        expiryDate
+        expiryDate,
       },
-    })
+    });
     return c.json(newLibraryMembership, 201);
-  }
-  catch (error) {
+  } catch (error) {
     console.error(error);
     return c.json({ error: "Internal Server Error" }, 500);
-    }
+  }
 });
 
-  
 //14:Updates the library membership details of the specified student.
 app.patch("/students/:studentId/library-membership", async (c) => {
   try {
-    
     const { issueDate, expiryDate } = await c.req.json();
     const { studentId } = c.req.param();
     const student = await prisma.student.findUnique({
@@ -319,21 +306,22 @@ app.patch("/students/:studentId/library-membership", async (c) => {
       where: { studentId: studentId },
     });
     if (!libraryMembership) {
-      return c.json({ error: "Student does not have a library membership" }, 400);
+      return c.json(
+        { error: "Student does not have a library membership" },
+        400
+      );
     }
     const updatedLibraryMembership = await prisma.libraryMembership.update({
       where: { studentId: studentId },
       data: {
         issueDate,
-        expiryDate
+        expiryDate,
       },
-    })
+    });
     return c.json(updatedLibraryMembership, 200);
-  } catch (error)
-  {
+  } catch (error) {
     console.error(error);
     return c.json({ error: "Internal Server Error" }, 500);
-
   }
 });
 
@@ -351,20 +339,19 @@ app.delete("/students/:studentId/library-membership", async (c) => {
       where: { studentId: studentId },
     });
     if (!libraryMembership) {
-      return c.json({ error: "Student does not have a library membership" }, 400);
+      return c.json(
+        { error: "Student does not have a library membership" },
+        400
+      );
     }
     await prisma.libraryMembership.delete({
       where: { studentId: studentId },
     });
     return c.json({ message: "Library membership deleted successfully" }, 200);
-    
-  }
-  catch (error)
-  {
+  } catch (error) {
     console.error(error);
     return c.json({ error: "Internal Server Error" }, 500);
   }
-
 });
 
 serve(app, (info) => {
