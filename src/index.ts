@@ -265,10 +265,102 @@ app.get("/students/:studentId/library-membership", async (c) => {
 });
     
 
-//
+//Creates a library membership for the specified student. Ensure no duplicate library memberships for a student.
+app.post("/students/:studentId/library-membership", async (c) => {
+  try {
+    const { issueDate, expiryDate } = await c.req.json();
+    const { studentId } = c.req.param();
+    const student = await prisma.student.findUnique({
+      where: { id: studentId },
+    });
+    if (!student) {
+      return c.json({ error: "Student not found" }, 404);
+    }
+    const libraryMembership = await prisma.libraryMembership.findUnique({
+      where: { studentId: studentId },
+    });
+    if (libraryMembership) {
+      return c.json({ error: "Student already has a library membership" }, 400);
+    }
+    const newLibraryMembership = await prisma.libraryMembership.create({
+      data: {
+        studentId,
+        issueDate,
+        expiryDate
+      },
+    })
+    return c.json(newLibraryMembership, 201);
+  }
+  catch (error) {
+    console.error(error);
+    return c.json({ error: "Internal Server Error" }, 500);
+    }
+});
 
   
-  
+//Updates the library membership details of the specified student.
+app.patch("/students/:studentId/library-membership", async (c) => {
+  try {
+    
+    const { issueDate, expiryDate } = await c.req.json();
+    const { studentId } = c.req.param();
+    const student = await prisma.student.findUnique({
+      where: { id: studentId },
+    });
+    if (!student) {
+      return c.json({ error: "Student not found" }, 404);
+    }
+    const libraryMembership = await prisma.libraryMembership.findUnique({
+      where: { studentId: studentId },
+    });
+    if (!libraryMembership) {
+      return c.json({ error: "Student does not have a library membership" }, 400);
+    }
+    const updatedLibraryMembership = await prisma.libraryMembership.update({
+      where: { studentId: studentId },
+      data: {
+        issueDate,
+        expiryDate
+      },
+    })
+    return c.json(updatedLibraryMembership, 200);
+  } catch (error)
+  {
+    console.error(error);
+    return c.json({ error: "Internal Server Error" }, 500);
+
+  }
+});
+
+//Deletes the library membership of the specified student.
+app.delete("/students/:studentId/library-membership", async (c) => {
+  try {
+    const { studentId } = c.req.param();
+    const student = await prisma.student.findUnique({
+      where: { id: studentId },
+    });
+    if (!student) {
+      return c.json({ error: "Student not found" }, 404);
+    }
+    const libraryMembership = await prisma.libraryMembership.findUnique({
+      where: { studentId: studentId },
+    });
+    if (!libraryMembership) {
+      return c.json({ error: "Student does not have a library membership" }, 400);
+    }
+    await prisma.libraryMembership.delete({
+      where: { studentId: studentId },
+    });
+    return c.json({ message: "Library membership deleted successfully" }, 200);
+    
+  }
+  catch (error)
+  {
+    console.error(error);
+    return c.json({ error: "Internal Server Error" }, 500);
+  }
+
+});
 
 serve(app, (info) => {
   console.log(`Server is running on http://localhost:${info.port}`);
