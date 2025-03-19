@@ -40,3 +40,4 @@ DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/your_db"
 ```
 open http://localhost:3000
 ```
+npm run dev
