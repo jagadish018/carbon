@@ -13,17 +13,17 @@ model Student {
   name              String
   dateOfBirth       String
   aadharNumber      String              @unique
-  proctor           Professor           @relation(fields: [proctorId], references: [id])
-  proctorId         String  @unique
+  proctor           Professor?          @relation(fields: [proctorId], references: [id], onDelete:Cascade )
+  proctorId         String?
   LibraryMembership LibraryMembership?
 }
-
+//Professor table
 model Professor {
   id           String    @id @default(uuid())
   name         String
   seniority    Seniority
   aadharNumber String    @unique
-  student      Student[]
+  student      Student[] 
 }
 
 model LibraryMembership {
