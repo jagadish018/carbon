@@ -13,5 +13,23 @@ model Student {
   name              String
   dateOfBirth       String
   aadharNumber      String              @unique
+  proctor           Professor           @relation(fields: [proctorId], references: [id])
+  proctorId         String  @unique
 
+}
+
+model Professor {
+  id           String    @id @default(uuid())
+  name         String
+  seniority    Seniority
+  aadharNumber String    @unique
+  student      Student[]
+}
+
+
+enum Seniority {
+  JUNIOR
+  SENIOR
+  ASSOCIATE
+  HEAD
 }
