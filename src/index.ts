@@ -284,7 +284,7 @@ app.post("/students/:studentId/library-membership", async (c) => {
     }
     const newLibraryMembership = await prisma.libraryMembership.create({
       data: {
-        studentId,
+        studentId:studentId,
         issueDate,
         expiryDate
       },
