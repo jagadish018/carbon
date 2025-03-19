@@ -39,9 +39,8 @@ app.get("/professors", async (c) => {
 });
 
 app.post("/students", async (c) => {
+  const { name, dateOfBirth, aadharNumber } = await c.req.json();
   try {
-    const { name, dateOfBirth, aadharNumber, proctorId } = await c.req.json();
-
     // Check if Aadhar number already exists
     const existAadhar = await prisma.student.findUnique({
       where: { aadharNumber },
@@ -52,12 +51,12 @@ app.post("/students", async (c) => {
 
     // Create student
     const student = await prisma.student.create({
-      data: {
+      data:{
         name,
         dateOfBirth,
-        aadharNumber,
-        proctorId, 
-      }
+        aadharNumber
+        
+      },
     });
 
     return c.json({ student }, 201);
@@ -202,11 +201,71 @@ app.delete("/professors/:professorId", async (c) => {
 });
 
 //Assigns a student under the protorship of the professor referenced by professorId.
-app.post("professors/:professorId/proctorships", async (c) => {
+app.post("/professors/:professorId/proctorships", async (c) => {
+  const { professorId } = c.req.param();
+  const { studentId } = await c.req.json();
+
   try {
-    const { professorId } = c.req.param();
-    const { studentId } = c.req.body;
+    // Verify professor exists
+    const professor = await prisma.professor.findUnique({
+      where: { id: professorId },
+    });
+    if (!professor) {
+      return c.json({ error: "Professor not found" }, 404);
+    }
+
+    // Verify student exists
+    const student = await prisma.student.findUnique({
+      where: { id: studentId },
+    });
+    if (!student) {
+      return c.json({ error: "Student not found" }, 404);
+    }
+
+    // Update student's proctorId
+    const updatedStudent = await prisma.student.update({
+      where: { id: studentId },
+      data: { proctorId: professorId },
+    });
+
+    return c.json(
+      { message: "Student assigned to proctor", student: updatedStudent },
+      200
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json({ error: "Internal Server Error" }, 500);
+  }
+});
+
+
+//Returns the library membership details of the specified student.
+app.get("/students/:studentId/library-membership", async (c) => {
+  try {
+    const { studentId } = c.req.param();
+    const student = await prisma.student.findUnique({
+      where: { id: studentId },
+    });
+    if (!student) {
+      return c.json({ error: "Student not found" }, 404);
+    }
+    const libraryMembership = await prisma.libraryMembership.findUnique({
+      where: { studentId: studentId },
+    });
+    if (!libraryMembership) {
+      return c.json({ error: "Student has no library membership" }, 404);
+    }
+    return c.json(libraryMembership, 200);
+
+  } catch (error) {
+    console.error(error);
+    return c.json({ error: "Internal Server Error" }, 500);
+  }
+  
+});
     
+
+//
 
   
   
