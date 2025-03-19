@@ -15,7 +15,7 @@ model Student {
   aadharNumber      String              @unique
   proctor           Professor           @relation(fields: [proctorId], references: [id])
   proctorId         String  @unique
-
+  LibraryMembership LibraryMembership?
 }
 
 model Professor {
@@ -26,6 +26,13 @@ model Professor {
   student      Student[]
 }
 
+model LibraryMembership {
+  id         String  @id @default(uuid())
+  student    Student @relation(fields: [studentId], references: [id])
+  studentId  String  @unique
+  issueDate  String
+  expiryDate String
+}
 
 enum Seniority {
   JUNIOR
