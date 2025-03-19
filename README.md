@@ -37,7 +37,9 @@ npx prisma migrate dev --name "v5"
 
 ##  Setup .env
 DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/your_db"
-```
-open http://localhost:3000
+
 ```
 npm run dev
+
+```
+open http://localhost:3000
